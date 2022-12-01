@@ -160,5 +160,15 @@ Invece se voglio annullare le modifiche che ancora non ho applicato pur mantenen
 \textcolor{blue}{cn}.\textcolor{red}{rollback}();
 
 \section{ORM (Mapping)}
+Gli \textbf{ORM} (Object-relational mapping) nascondono l'imlpementazione delle operazioni con il database permettendoci di operare
+direttamente sugli oggetti. Traduzione: L'ORM si occupa del codice sql noi useremo solo metodi su oggetti per operare con
+il database.
+
+\subsection{DAO}
+I \textbf{DAO} (Data Access Object) sono interfacce che espongono metodi che operano sul database.
+L'impementazione di queste interfacce contengono quindi la logica JDBC.
+Formalmente si possono riconoscere perchè il loro nome è composto dal nome dell'entità a cui si
+riferiscono e DAO. es: Autore diventa AutoreDAO. In genere ogni tabella ha la sua classe corrispondente
+(tabelle connessioni molti a molti escluse).
 
 \end{document}
