@@ -1,0 +1,164 @@
+\documentclass[11pt, letterpaper, titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{arsclassica}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{a4paper,top=3cm,bottom=3cm,left=2cm,right=2cm,%
+heightrounded,bindingoffset=5mm}
+
+
+\begin{document}
+\title{JDBC}
+\author{Leonardo De Boni}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Ottenere una connessione}
+
+\subsection{Import}
+La classe da importare è:\par
+\textcolor{brown}{java.io.Connection}
+
+\subsection{Aprire una connessione}
+Esistono vari metodi che restituiscono una connessione:
+\begin{itemize}
+    \item \textcolor{orange}{DriverManager}.\textcolor{red}{getConnection}(\textcolor{orange}{String} \textcolor{blue}{url})
+    \item \textcolor{orange}{DriverManager}.\textcolor{red}{getConnection}(\textcolor{orange}{String} \textcolor{blue}{url}, \textcolor{orange}{String} \textcolor{blue}{user},\textcolor{orange}{String} \textcolor{blue}{pass})
+    \item \textcolor{orange}{DriverManager}.\textcolor{red}{getConnection}(\textcolor{orange}{String} \textcolor{blue}{url}, \textcolor{orange}{Properties} \textcolor{cyan}{properties})
+\end{itemize}
+Formato dell'url:\par
+\textcolor{blue}{jdbc:}\textcolor{yellow}{subprotocol:}\textcolor{green}{//host}\textcolor{cyan}{:porta}\textcolor{red}{/database}\\
+Eventualmente l'url può contenere anche username e password e nel nostro caso l'url per MariaDb diventa:\par
+\textcolor{blue}{jdbc:}\textcolor{yellow}{mariadb:}\textcolor{green}{//localhost}\textcolor{cyan}{:3306}\textcolor{red}{/database}?user=root\&password=myPassword\\
+Connessione:\par
+\textcolor{orange}{Connection} \textcolor{blue}{cn} = \textcolor{orange}{DriverManager}.\textcolor{red}{getConnection}(\textcolor{orange}{String} \textcolor{blue}{url});
+
+\subsection{Chiudere una connessione}
+Dopo avere eseguito le operazioni che mi interessano sulla connessione devo \textbf{sempre} chiudere la connessione:\par
+\textcolor{blue}{cn}.\textcolor{red}{close}();
+
+\section{Eccezioni}
+Le connessioni sono delicate e possono generare errori e possono essere gestite tramite il costrutto try with resources:\par
+\textcolor{magenta}{try} \textcolor{green}{(...dichiarazione oggetti autoclosable...)} \textcolor{magenta}{\{}\par
+...\par
+\textcolor{magenta}{\}}\\
+dove all'interno delle parentesi tonde posso instanziare un oggetto che implementa \textbf{AutoClosable}
+come ad esempio nel nostro caso è \textbf{Connection}.
+
+\section{Statement}
+\subsection{Creare uno statement}
+Dopo aver creato una connessione come visto prima possono creare uno Statement a partire da essa:\par
+\textcolor{orange}{Statement} \textcolor{blue}{st} = \textcolor{blue}{cn}.\textcolor{red}{createStatement}();
+
+\subsection{Eseguire codice sql}
+Per eseguire codice sql posso usare:\par
+\textcolor{blue}{st}.\textcolor{red}{executeUpdate}(\textcolor{orange}{String} \textcolor{blue}{sql});\\
+che posso usare per operazioni DML + DDL (insert, update, delete, drop, create, …)
+e restituisce un \textbf{int} corrispondente al numero di righe modificate\par
+\textcolor{blue}{st}.\textcolor{red}{executeQuery}(\textcolor{orange}{String}\textcolor{blue}{sql});\\
+che posso usare per operazioni DQL (select) e retituisce un oggetto di tipo \textbf{ResultSet}.
+
+\subsection{Eseguire codice sql generico}
+Quando non so che tipo di query devo eseguire (es: di update o ricerca) posso usare il metodo:\par
+\textcolor{blue}{st}.\textcolor{red}{execute}();\\
+che ritorna un \textbf{boolean} equivalente a:
+\begin{itemize}
+    \item \textcolor{violet}{true} se il primo risultato è un \textbf{ResultSet} che posso ottenere
+          con \textcolor{blue}{st}.\textcolor{red}{getResultSet}()
+    \item \textcolor{violet}{false} se il primo risultato è il numero delle righe modificate che posso ottenere
+          con \textcolor{blue}{st}.\textcolor{red}{getUpdateCount}()
+\end{itemize}
+Per controllare se ci sono altri risultati uso \textcolor{blue}{st}.\textcolor{red}{getMoreResults}().
+So di avere finito i risultati perchè l'ultimo result sarà un count dal valore di -1.
+\href{https://stackoverflow.com/questions/52700237/executequery-vs-getresultset-in-java#:~:text=boolean%20isResultSet%20%3D%20statement.execute(sql)%3B}{Codice di esempio}.
+
+\subsection{Eseguire query multiple}
+//fare
+
+\section{ResultSet}
+Quando ottengo un \textbf{ResultSet} posso muovermi su esso con un cursore che partirà dalla riga 0 (inesistente).
+Quindi ho vari modi per muovere il cursore ed ottenere i dati relativi alla sua posizione.
+
+\subsection{Estrarre dati dal ResultSet}
+Per iterare sul \textbf{ResultSet} ho a disposizione il seguente metodo:\par
+\textcolor{orange}{boolean} \textcolor{red}{next}();\\
+Esempio:\par
+\textcolor{magenta}{while} ( \textcolor{blue}{rs}.\textcolor{red}{next}() ) \textcolor{magenta}{\{}\par
+...\par
+\textcolor{magenta}{\}}\\
+Esistono getters per ottenere i campi. Per esempio per ottenere un campo String ho varie
+opzioni:
+\begin{itemize}
+    \item \textcolor{blue}{rs}.\textcolor{red}{getString}(\textcolor{purple}{"nomeCampo"})
+    \item \textcolor{blue}{rs}.\textcolor{red}{getString}(\textcolor{purple}{1})
+\end{itemize}
+Il primo funziona in base al nome del campo che voglio ottenere il secondo in base alla
+posizione del campo(sconsigliato).
+
+\subsection{Movimenti avanzati sul ResultSet}
+Oltre a \textcolor{red}{next}() ho a disposizione altri metodi per muovermi nel \textbf{ResultSet}:
+\begin{itemize}
+    \item \textcolor{red}{previous}()
+    \item \textcolor{red}{first}()
+    \item \textcolor{red}{last}()
+    \item \textcolor{red}{absolute}(\textcolor{blue}{numero})
+    \item \textcolor{red}{relative}(\textcolor{blue}{numero})
+\end{itemize}
+
+\subsection{Concorrenza}
+//fare
+
+\section{ResultSetMetaData}
+//fare
+
+\section{PreparedStatement}
+
+\subsection{Creare un PreparedStatement}
+Il \textbf{PreparedStatement} serve per scrivere una query parametrica, ovvero una query che
+al posto dei dati che devo personalizzare ogni volta metto dei placeholder. Posso
+creare un \textbf{PreparedStatement} in vari modi:
+\begin{itemize}
+    \item \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}({\textcolor{blue}{sql}})
+    \item \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}({\textcolor{blue}{sql},\textcolor{orange}{int}}): INSERT
+    \item \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}({\textcolor{blue}{sql},\textcolor{orange}{int[]}}): INSERT
+    \item \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}({\textcolor{blue}{sql},\textcolor{orange}{String[]}}): INSERT
+    \item \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}({\textcolor{blue}{sql},\textcolor{orange}{int},\textcolor{orange}{int}})
+\end{itemize}
+Esempio di query sql parametrica:\par
+\textcolor{purple}{INSERT INTO autori (id, cognome, nome) VALUES (?,?,?)}\\
+Da notare l'utilizzo del carattere \textcolor{blue}{?} come placeholder. Quindi il
+codice completo per creare un \textbf{PreparedStatement} può essere:\par
+\textcolor{orange}{String} \textcolor{blue}{sql} = \textcolor{purple}{"INSERT INTO autori (id, cognome, nome) VALUES (?,?,?)"};\par
+\textcolor{orange}{PreparedStatement} \textcolor{blue}{ps} = \textcolor{blue}{cn}.\textcolor{red}{prepareStatement}(\textcolor{blue}{sql});\\
+Ora come faccio a impostare un valore arbitrario al posto dei placeholder?
+
+\subsection{Operare su PreparedStatement}
+Per sostituire i placeholder con valori arbitrari ho a disposizione vari setters che
+accettano 2 argomenti di cui il primo contiene la posizione del placeholder che voglio
+sostituire e il secondo il valore che voglio inserire. Esempio:
+\begin{itemize}
+    \item \textcolor{blue}{ps}.\textcolor{red}{setInt}(\textcolor{blue}{posizione},\textcolor{blue}{valore});
+    \item \textcolor{blue}{ps}.\textcolor{red}{setString}(\textcolor{blue}{posizione},\textcolor{blue}{valore});
+\end{itemize}
+
+\subsection{Eseguire un PreparedStatement}
+Una volta inseriti i dati al posto dei placeholder non ci resta che eseguire il
+\textbf{PreparedStatement} in modo tale da operare sul database:\par
+\textcolor{blue}{ps}.\textcolor{red}{executeUpdate}();
+
+\section{Transazioni}
+La transazione è un elenco di operazioni che vengono eseguite o \textbf{tutte o nessuna}.
+Di default la connessione è in modalità auto commit e in automatico dopo ogni operazione viene applicata al database
+in automatico. Posso disabilitare questa modalità e decidere io quando applicare le modifiche con:\par
+\textcolor{blue}{cn}.\textcolor{red}{setAutoCommit}(\textcolor{purple}{false});\\
+Per applicare le modifiche al database devo quindi usare:\par
+\textcolor{blue}{cn}.\textcolor{red}{commit}();\\
+Invece se voglio annullare le modifiche che ancora non ho applicato pur mantenendo la connessione uso:\par
+\textcolor{blue}{cn}.\textcolor{red}{rollback}();
+
+\section{ORM (Mapping)}
+
+\end{document}
