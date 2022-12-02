@@ -75,9 +75,6 @@ Per controllare se ci sono altri risultati uso \textcolor{blue}{st}.\textcolor{r
 So di avere finito i risultati perchè l'ultimo result sarà un count dal valore di -1.
 \href{https://stackoverflow.com/questions/52700237/executequery-vs-getresultset-in-java#:~:text=boolean%20isResultSet%20%3D%20statement.execute(sql)%3B}{Codice di esempio}.
 
-\subsection{Eseguire query multiple}
-//fare
-
 \section{ResultSet}
 Quando ottengo un \textbf{ResultSet} posso muovermi su esso con un cursore che partirà dalla riga 0 (inesistente).
 Quindi ho vari modi per muovere il cursore ed ottenere i dati relativi alla sua posizione.
@@ -147,7 +144,17 @@ sostituire e il secondo il valore che voglio inserire. Esempio:
 \subsection{Eseguire un PreparedStatement}
 Una volta inseriti i dati al posto dei placeholder non ci resta che eseguire il
 \textbf{PreparedStatement} in modo tale da operare sul database:\par
-\textcolor{blue}{ps}.\textcolor{red}{executeUpdate}();
+\begin{itemize}
+    \item \textcolor{blue}{ps}.\textcolor{red}{executeUpdate}(); se applico una modifica
+    \item \textcolor{blue}{ps}.\textcolor{red}{executeQuery}(); se interrogo il database per ottenere un \textbf{ResultSet}
+\end{itemize}
+
+\section{Query multiple}
+Supponiamo di voler aggiungere più query a uno \textbf{Statement} oppure a uno \textbf{PreparedStatement}. In questo caso ci viene in
+aiuto il metodo \textcolor{blue}{st}.\textcolor{red}{addBatch}(\textcolor{orange}{String} \textcolor{blue}{sql}) e
+\textcolor{blue}{ps}.\textcolor{red}{addBatch}(). Il primo caso si spiega da solo il secondo invece si usa dopo aver impostato
+il valore dei placeholder e quindi si può procedere a impostare di nuovo il valore dei placeholder in loop. Quando ho finito di aggiungere
+query semplicemente chiamo il metodo \textcolor{red}{executeBatch}(). \href{https://www.baeldung.com/jdbc-batch-processing}{Esempi}
 
 \section{Transazioni}
 La transazione è un elenco di operazioni che vengono eseguite o \textbf{tutte o nessuna}.
